@@ -1,14 +1,16 @@
+Jenkinsfile (Declarative Pipeline)
 pipeline {
-    agent {
-        docker {
-            image 'maven:3-alpine' 
-            args '-v /root/.m2:/root/.m2' 
-        }
-    }
+    agent any
     stages {
-        stage('Build') { 
+        stage('Deploy') {
             steps {
-                sh 'echo "Hello World"'
+                retry(3) {
+                    sh './flakey-deploy.sh'
+                }
+
+                timeout(time: 3, unit: 'MINUTES') {
+                    sh './health-check.sh'
+                }
             }
         }
     }
